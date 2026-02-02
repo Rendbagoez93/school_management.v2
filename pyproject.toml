@@ -1,0 +1,159 @@
+[project]
+name = "School-Management-System"
+version = "0.1.0"
+description = "Web App System for School. Managing Academic Year, Students, Teachers, Classes and Exams."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "django>=5.2.3",
+    "dependency-injector>=4.47.1",
+    "pydantic[email]>=2.11.7",
+    "pydantic-settings>=2.9.1",
+    "pydantic-settings-yaml>=0.2.0",
+]
+
+[project.optional-dependencies]
+api = [
+    "djangorestframework-simplejwt>=5.5.0",
+    "drf-spectacular>=0.29.0",
+    "django-filter>=25.2",
+    "django-cors-headers>=4.9.0",
+]
+
+content = [
+    "django-ckeditor-5>=0.2.18",
+    "pillow>=12.0.0",
+]
+
+documents = [
+    "reportlab>=4.4.9",
+    "xhtml2pdf>=0.2.17",
+]
+
+data = [
+    "pandas>=2.3.3",
+    "openpyxl>=3.1.5",
+]
+
+realtime = [
+    "daphne",
+]
+
+[dependency-groups]
+dev = [
+    "ruff",
+]
+
+test = [
+    "pytest>=8.4.0",
+    "pytest-django>=4.11.1",
+    "factory-boy>=3.3.0",
+    "pytest-mock>=3.14.0",
+    "pytest-cov>=6.2.1",
+    "pytest-xdist>=3.8.0",
+    "faker>=37.4.0",
+]
+
+[tool.ruff]
+extend-exclude = ["migrations"]
+exclude = [".venv", "migrations"]
+line-length = 120
+
+
+[tool.ruff.format]
+quote-style = "double"
+
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    "T201",
+]
+ignore = ["B904"]
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["E402"]
+"config/settings/base.py" = ["E501"]
+"config/settings/local.py" = ["F403", "F405"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.local"
+python_files = ["tests.py", "test_*.py", "*_tests.py"]
+python_classes = ["Test*", "*Tests", "*Test"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--reuse-db",
+    "--create-db",
+    "--verbose",
+    "-s",
+    "--tb=short",
+    "--cov=modules",
+    "--cov=apis",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=50",
+]
+testpaths = ["tests", "apis", "modules", "applications"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+    "api: marks tests as API tests",
+    "auth: marks tests as authentication related",
+    "user: marks tests as user related",
+]
+filterwarnings = ["ignore::UserWarning", "ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["modules", "apis"]
+omit = [
+    "*/migrations/*",
+    "*/migrations.py",
+    "**/migrations/**",
+    "*/settings.py",
+    "**/settings/**",
+    "*/forms.py",
+    "*/urls.py",
+    "*/admin.py",
+    "**/forms.py",
+    "*/test*",
+    "**/test*",
+    "*/conftest.py",
+    "**/conftest.py",
+    "*/venv/*",
+    "*/.venv/*",
+    "*/env/*",
+    "*/.env/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+skip_covered = false
+
+[tool.coverage.html]
+directory = "htmlcov"

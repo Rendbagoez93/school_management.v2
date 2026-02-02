@@ -1,0 +1,91 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "SchoolConfig",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "School name"
+        },
+        "address": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "School address"
+        },
+        "phone": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "School phone number"
+        },
+        "email": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "School email address"
+        },
+        "description": {
+            "type": [
+                "string",
+                "null"
+            ],
+            "description": "School description"
+        },
+        "attributes": {
+            "type": [
+                "array",
+                "null"
+            ],
+            "description": "Dynamic school attributes",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string"
+                    },
+                    "value": {
+                        "oneOf": [
+                            {
+                                "type": "string"
+                            },
+                            {
+                                "type": "number"
+                            },
+                            {
+                                "type": "boolean"
+                            },
+                            {
+                                "type": "array"
+                            },
+                            {
+                                "type": "object"
+                            }
+                        ]
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "string",
+                            "number",
+                            "boolean",
+                            "array",
+                            "object"
+                        ],
+                        "description": "Type of the value"
+                    }
+                },
+                "required": [
+                    "key",
+                    "value"
+                ]
+            }
+        }
+    },
+    "required": [
+        "name"
+    ]
+}

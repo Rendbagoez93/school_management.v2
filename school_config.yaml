@@ -1,0 +1,24 @@
+name: "SMA Islam Malang"
+address: "Jln R.A kartini, Malang, Indonesia"
+phone: "+62 341 123456"
+email: "info@smaislammalang.sch.id"
+description: "SMA Islam Malang is a leading Islamic high school in Malang, Indonesia."
+attributes:
+- key: "Established Year"
+  value: 1995
+  type: number
+- key: "Principal"
+  value: "Dr. Jane Smith"
+- key: "Motto"
+  value: "Empowering Future Leaders"
+- key: "Number of Students"
+  value: 1200
+  type: number
+- key: "Number of Teachers"
+  value: 75
+  type: number
+- key: "School Colors"
+  type: array
+  value: [ "Green", "White" ]
+- key: "Mascot"
+  value: "Eagle"

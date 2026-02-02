@@ -1,0 +1,56 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+*.pyo
+*.pyd
+*.so
+build/
+dist/
+wheels/
+*.egg-info
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Django-specific
+*.log
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/mediafiles/
+local_settings.py
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+
+# UV package manager
+uv.lock
+
+# Documentation builds
+docs/_build/
+
+# Backup files
+*.bak
+*.tmp
