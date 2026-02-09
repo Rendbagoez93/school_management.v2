@@ -19,16 +19,17 @@ class AllObjectsManager(models.Manager):
 class TimeStampedModel(models.Model):
     """
     Abstract base model that provides
-    self-updating 'created' and 'modified' fields.
+    self-updating 'date_joined' and 'date_modified' fields.
+    Compatible with Django's user model conventions.
     """
 
-    created = models.DateTimeField(auto_now_add=True, verbose_name="Created At")
-    modified = models.DateTimeField(auto_now=True, verbose_name="Modified At")
+    date_joined = models.DateTimeField(auto_now_add=True, verbose_name="Date Joined")
+    date_modified = models.DateTimeField(auto_now=True, verbose_name="Date Modified")
 
     class Meta:
         abstract = True
-        ordering = ["-created"]
-        indexes = [models.Index(fields=["created"])]
+        ordering = ["-date_joined"]
+        indexes = [models.Index(fields=["date_joined"])]
 
 
 class SoftDeletableModel(models.Model):
@@ -66,4 +67,4 @@ class BaseSoftDeletableModel(TimeStampedModel, SoftDeletableModel):
 
     class Meta:
         abstract = True
-        ordering = ["-created", "-modified"]
+        ordering = ["-date_joined", "-date_modified"]

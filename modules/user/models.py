@@ -4,21 +4,21 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.mail import send_mail
 from django.core.validators import RegexValidator
 from django.db import models
+from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+
+from shared.base_models import BaseSoftDeletableModel
 
 from .managers import DefaultUserManager
 from .mixins import PreferencesMixin, SecurityMixin, TimestampMixin
 
 
-class AbstractUser(AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityMixin, PreferencesMixin):
-    """
-    Abstract user model that provides a fully-featured user model with
-    admin-compliant permissions and authentication.
-
-    Email is used as the unique identifier instead of username.
-    """
-
+class AbstractUser(
+    BaseSoftDeletableModel, AbstractBaseUser, 
+    PermissionsMixin, TimestampMixin, 
+    SecurityMixin, PreferencesMixin
+    ):
     # User identification fields
     id = models.UUIDField(
         primary_key=True,
@@ -108,6 +108,12 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityM
             models.Index(fields=["date_joined"]),
             models.Index(fields=["last_login"]),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                Lower("email"),
+                name="%(app_label)s_%(class)s_unique_lowercase_email",
+            ),
+        ]
 
     def __str__(self) -> str:
         """Return the string representation of the user."""
@@ -120,7 +126,7 @@ class AbstractUser(AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityM
     def clean(self) -> None:
         """Perform model validation."""
         super().clean()
-        self.email = self.__class__.objects.normalize_email(self.email)
+        self.email = self.__class__.objects.normalize_email(self.email).lower()
 
     def get_full_name(self) -> str:
         """Return the first_name plus the last_name, with a space in between."""
