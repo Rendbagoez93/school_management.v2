@@ -14,7 +14,11 @@ from .managers import DefaultUserManager
 from .mixins import PreferencesMixin, SecurityMixin, TimestampMixin
 
 
-class AbstractUser(BaseSoftDeletableModel, AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityMixin, PreferencesMixin):
+class AbstractUser(
+    BaseSoftDeletableModel, AbstractBaseUser, 
+    PermissionsMixin, TimestampMixin, 
+    SecurityMixin, PreferencesMixin
+    ):
     # User identification fields
     id = models.UUIDField(
         primary_key=True,
