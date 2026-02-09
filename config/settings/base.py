@@ -49,9 +49,15 @@ DJANGO_APPS = [
 
 THIRD_PARTY_APPS = []
 
-LOCAL_APPS = []
+INTERNAL_APPS = [
+    "applications.academic_setup",
+    "applications.user_management",
+    "applications.school_management.academic_management",
+    "applications.school_management.grade_management",
+    "applications.school_management.staff_management",
+]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + INTERNAL_APPS
 
 # Custom user model
 AUTH_USER_MODEL = "user.User"
