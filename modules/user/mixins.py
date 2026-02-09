@@ -6,20 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 
 class TimestampMixin(models.Model):
-    """Mixin for timestamp-related fields."""
-
-    date_joined = models.DateTimeField(
-        _("date joined"),
-        default=timezone.now,
-        help_text=_("The date and time when the user account was created."),
-    )
-
-    last_login = models.DateTimeField(
-        _("last login"),
-        blank=True,
-        null=True,
-        help_text=_("The date and time of the user's last login."),
-    )
+    """Mixin for user-specific timestamp fields."""
 
     email_verified_at = models.DateTimeField(
         _("email verified at"),

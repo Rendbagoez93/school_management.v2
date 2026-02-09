@@ -8,18 +8,13 @@ from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from shared.base_models import BaseSoftDeletableModel
+
 from .managers import DefaultUserManager
 from .mixins import PreferencesMixin, SecurityMixin, TimestampMixin
 
 
-class AbstractUser(AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityMixin, PreferencesMixin):
-    """
-    Abstract user model that provides a fully-featured user model with
-    admin-compliant permissions and authentication.
-
-    Email is used as the unique identifier instead of username.
-    """
-
+class AbstractUser(BaseSoftDeletableModel, AbstractBaseUser, PermissionsMixin, TimestampMixin, SecurityMixin, PreferencesMixin):
     # User identification fields
     id = models.UUIDField(
         primary_key=True,
