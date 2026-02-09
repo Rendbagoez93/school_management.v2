@@ -30,7 +30,7 @@ class CommonEnvSettings(BaseSettings):
 
     # Internationalization
     LANGUAGE_CODE: str = Field(default="en-us", description="Language code for the application")
-    TIME_ZONE: str = Field(default="UTC", description="Time zone for the application")
+    TIME_ZONE: str = Field(default="Asia/Jakarta", description="Time zone for the application")
 
     model_config = SettingsConfigDict(
         env_file=".env",
