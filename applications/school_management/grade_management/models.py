@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from applications.school_management.academic_management.models import AcademicYear, StudentEnrollment
 from shared.base_models import BaseSoftDeletableModel
@@ -67,7 +68,6 @@ class Grade(BaseSoftDeletableModel):
 
     def delete(self, using=None, keep_parents=False):
         """Override delete to cascade soft-delete to related StudentGrade records."""
-        from django.utils import timezone
         
         # Soft delete all related StudentEnrollment records
         StudentEnrollment.objects.filter(grade=self).update(
