@@ -1,8 +1,8 @@
-name: "SMA Islam Malang"
-address: "Jln R.A kartini, Malang, Indonesia"
+name: "SMA Swasta"
+address: "Jln R.A Kartini, Malang, Indonesia"
 phone: "+62 341 123456"
-email: "info@smaislammalang.sch.id"
-description: "SMA Islam Malang is a leading Islamic high school in Malang, Indonesia."
+email: "info@smaswasta.sch.id"
+description: "Place of Excellence in Education"
 attributes:
 - key: "Established Year"
   value: 1995
@@ -21,4 +21,4 @@ attributes:
   type: array
   value: [ "Green", "White" ]
 - key: "Mascot"
-  value: "Eagle"
+  value: "Hawk"
