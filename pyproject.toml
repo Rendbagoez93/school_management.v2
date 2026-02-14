@@ -3,9 +3,9 @@ name = "School-Management-System"
 version = "0.1.0"
 description = "Web App System for School. Managing Academic Year, Students, Teachers, Classes and Exams."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
-    "django>=5.2.3",
+    "django>=6.0.2",
     "dependency-injector>=4.47.1",
     "pydantic[email]>=2.11.7",
     "pydantic-settings>=2.9.1",
