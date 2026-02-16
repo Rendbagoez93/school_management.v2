@@ -3,7 +3,7 @@ name = "School-Management-System"
 version = "0.1.0"
 description = "Web App System for School. Managing Academic Year, Students, Teachers, Classes and Exams."
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.14.0"
 dependencies = [
     "django>=6.0.2",
     "dependency-injector>=4.47.1",
