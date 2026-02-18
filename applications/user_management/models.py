@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.db import IntegrityError, models, transaction
 
 from config.roles import RoleEnum
-from modules.user.models import DefaultUserManager
+from modules.user.managers import DefaultUserManager
 from shared.base_models import TimeStampedModel
 
 User = get_user_model()
@@ -95,9 +95,9 @@ class SchoolUserManager(DefaultUserManager):
 
 class SchoolUser(User):
     objects: SchoolUserManager = SchoolUserManager()
-    schoolstaff: "SchoolStaff"
-    student: "Student"
-    parent: "Parent"
+    schoolstaff: SchoolStaff
+    student: Student
+    parent: Parent
 
     class Meta:
         proxy = True

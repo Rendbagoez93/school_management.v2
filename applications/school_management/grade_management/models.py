@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
-from applications.school_management.academic_management.models import AcademicYear, StudentEnrollment
+from applications.school_management.academic_management.models import StudentEnrollment
 from shared.base_models import BaseSoftDeletableModel
 
 
@@ -13,7 +13,7 @@ class Grade(BaseSoftDeletableModel):
     name = models.CharField(max_length=64)
     description = models.TextField(blank=True)
     academic_year = models.ForeignKey(
-        AcademicYear,
+        "academic_management.AcademicYear",
         on_delete=models.CASCADE,
         related_name="grades",
     )
@@ -22,7 +22,7 @@ class Grade(BaseSoftDeletableModel):
     grade_subtype = models.CharField(max_length=32, blank=True)
     students = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
-        through=StudentEnrollment,
+        through="academic_management.StudentEnrollment",
         blank=True,
         related_name="student_grades",
     )
@@ -47,6 +47,14 @@ class Grade(BaseSoftDeletableModel):
     
     def clean(self):
         super().clean()
+        
+        # Validate academic_year dependency
+        if self.academic_year_id and not self.can_be_created_for_year(self.academic_year):
+            raise ValidationError({
+                "academic_year": f"Cannot create grades for academic year '{self.academic_year.name}'. "
+                                 f"Academic year must be in SETUP or ENROLLMENT status."
+            })
+        
         if not self.grade:
             raise ValidationError({
                 "grade": "Grade level is mandatory."
@@ -67,8 +75,7 @@ class Grade(BaseSoftDeletableModel):
         super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):
-        """Override delete to cascade soft-delete to related StudentGrade records."""
-        
+        """Override delete to cascade soft-delete to related StudentEnrollment records."""
         # Soft delete all related StudentEnrollment records
         StudentEnrollment.objects.filter(grade=self).update(
             is_deleted=True,

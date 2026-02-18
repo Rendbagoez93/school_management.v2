@@ -104,7 +104,7 @@ class StudentEnrollment(BaseSoftDeletableModel):
     one class per academic year."""
 
     student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    grade = models.ForeignKey("Grade", on_delete=models.CASCADE)
+    grade = models.ForeignKey("grade_management.Grade", on_delete=models.CASCADE)
     academic_year = models.ForeignKey("AcademicYear", on_delete=models.CASCADE)
     joined_at = models.DateTimeField(auto_now_add=True)
 
