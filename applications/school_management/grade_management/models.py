@@ -7,6 +7,15 @@ from applications.school_management.academic_management.models import StudentEnr
 from shared.base_models import BaseSoftDeletableModel
 
 
+class ActiveStudentsManager(models.Manager):
+    """Manager for M2M that only returns non-deleted enrollments."""
+    def get_queryset(self):
+        # Filter through relationship to exclude soft-deleted enrollments
+        return super().get_queryset().filter(
+            student_grades__is_deleted=False
+        )
+
+
 class Grade(BaseSoftDeletableModel):
     """Represents a class/section for a specific academic year."""
 
@@ -30,6 +39,17 @@ class Grade(BaseSoftDeletableModel):
     updated_at = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
 
+    def get_active_students(self):
+        """Get students with active (non-soft-deleted) enrollments."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        # Query through the StudentEnrollment to filter by is_deleted
+        enrollment_ids = StudentEnrollment.objects.filter(
+            grade=self,
+            is_deleted=False
+        ).values_list('student_id', flat=True)
+        return User.objects.filter(id__in=enrollment_ids)
+
     class Meta:
         unique_together = ("name", "grade", "academic_year", "grade_type", "grade_subtype")
         ordering = ["-academic_year", "name"]
@@ -48,8 +68,8 @@ class Grade(BaseSoftDeletableModel):
     def clean(self):
         super().clean()
         
-        # Validate academic_year dependency
-        if self.academic_year_id and not self.can_be_created_for_year(self.academic_year):
+        # Validate academic_year dependency only on creation (not updates)
+        if self.academic_year_id and not self.pk and not self.can_be_created_for_year(self.academic_year):
             raise ValidationError({
                 "academic_year": f"Cannot create grades for academic year '{self.academic_year.name}'. "
                                  f"Academic year must be in SETUP or ENROLLMENT status."
@@ -71,7 +91,9 @@ class Grade(BaseSoftDeletableModel):
             })
     
     def save(self, *args, **kwargs):
-        self.full_clean()
+        # Only validate model fields, not uniqueness constraints
+        # This allows database-level IntegrityError for duplicates
+        self.clean()
         super().save(*args, **kwargs)
 
     def delete(self, using=None, keep_parents=False):

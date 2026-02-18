@@ -376,12 +376,9 @@ class TestStudentTransfer:
             to_grade=grade_b,
         )
         
-        # Old enrollment is soft-deleted (still in database)
-        old_enrollment = StudentEnrollment.objects.filter(pk=original_id).first()
-        assert old_enrollment is not None
-        assert old_enrollment.is_deleted is True
-        
-        # New enrollment is active
+        # Same enrollment object,just updated (better design - preserves joined_at)       
+        assert enrollment_b.pk == original_id
+        assert enrollment_b.grade == grade_b
         assert enrollment_b.is_deleted is False
     
     def test_cannot_transfer_between_different_years(
@@ -551,7 +548,7 @@ class TestUnenrollment:
         )
         
         # Verify removal
-        assert student_user not in grade_in_enrollment.students.all()
+        assert student_user not in grade_in_enrollment.get_active_students()
     
     def test_unenroll_uses_soft_delete(self, grade_in_enrollment, student_user):
         """Test that unenrollment uses soft delete to preserve history."""
@@ -569,7 +566,7 @@ class TestUnenrollment:
         )
         
         # Enrollment record still exists but is soft-deleted
-        deleted_enrollment = StudentEnrollment.objects.filter(pk=enrollment_id).first()
+        deleted_enrollment = StudentEnrollment.all_objects.filter(pk=enrollment_id).first()
         assert deleted_enrollment is not None
         assert deleted_enrollment.is_deleted is True
     

@@ -147,9 +147,9 @@ def previous_academic_year(db, base_date):
         name="2025/2026",
         start_date=past_start,
         end_date=past_end,
-        status=AcademicYear.Status.COMPLETED,
+        status=AcademicYear.Status.SETUP,  # Allow grade creation for testing
         deployment_type=AcademicYear.DeploymentType.FRESH_START,
-        setup_completed=True,
+        setup_completed=False,
         is_active=False,
     )
     return ay
@@ -186,29 +186,74 @@ def grade_in_enrollment(enrollment_academic_year):
 
 
 @pytest.fixture
-def grade_in_active(active_academic_year):
+def grade_in_active(db, academic_year_dates):
     """Create a grade during ACTIVE phase (created before activation)."""
-    return Grade.objects.create(
+    # Create academic year in SETUP status first
+    ay = AcademicYear.objects.create(
+        name="2026/2027 Active",
+        start_date=academic_year_dates["start_date"],
+        end_date=academic_year_dates["end_date"],
+        enrollment_start_date=academic_year_dates["enrollment_start"],
+        enrollment_end_date=academic_year_dates["enrollment_end"],
+        status=AcademicYear.Status.SETUP,
+        deployment_type=AcademicYear.DeploymentType.FRESH_START,
+        setup_completed=False,
+        is_active=True,
+    )
+    
+    # Create grade while in valid status
+    grade = Grade.objects.create(
         name="Class C",
         grade="Grade 10",
         grade_type="Secondary",
-        academic_year=active_academic_year,
+        academic_year=ay,
         description="Grade 10 Section C - Active Phase",
         is_active=True,
     )
+    
+    # Now transition to ACTIVE status
+    ay.status = AcademicYear.Status.ACTIVE
+    ay.setup_completed = True
+    ay.save()
+    
+    return grade
 
 
 @pytest.fixture
-def grade_in_completed(completed_academic_year):
+def grade_in_completed(db, base_date):
     """Create a grade in a COMPLETED academic year."""
-    return Grade.objects.create(
+    past_start = base_date - timedelta(days=730)  # 2 years ago
+    past_end = base_date - timedelta(days=365)    # 1 year ago
+    
+    # Create academic year in SETUP status first
+    ay = AcademicYear.objects.create(
+        name="2024/2025 Completed",
+        start_date=past_start,
+        end_date=past_end,
+        enrollment_start_date=past_start + timedelta(days=30),
+        enrollment_end_date=past_start + timedelta(days=90),
+        status=AcademicYear.Status.SETUP,
+        deployment_type=AcademicYear.DeploymentType.FRESH_START,
+        setup_completed=False,
+        is_active=False,
+    )
+    
+    # Create grade while in valid status
+    grade = Grade.objects.create(
         name="Class D",
         grade="Grade 10",
         grade_type="Secondary",
-        academic_year=completed_academic_year,
+        academic_year=ay,
         description="Grade 10 Section D - Completed",
         is_active=True,
     )
+    
+    # Now transition to COMPLETED status
+    ay.status = AcademicYear.Status.COMPLETED
+    ay.setup_completed = True
+    ay.save()
+    
+    return grade
 
 
 # ========================================================================
@@ -271,7 +316,6 @@ def student_role(db):
 def student_user(db, student_role):
     """Create a single student user for enrollment testing."""
     user = User.objects.create_user(
-        username="student001",
         email="student001@school.edu",
         password="testpass123",
         first_name="John",
@@ -285,7 +329,6 @@ def student_user(db, student_role):
 def student_user_2(db, student_role):
     """Create a second student user."""
     user = User.objects.create_user(
-        username="student002",
         email="student002@school.edu",
         password="testpass123",
         first_name="Jane",
@@ -299,7 +342,6 @@ def student_user_2(db, student_role):
 def student_user_3(db, student_role):
     """Create a third student user."""
     user = User.objects.create_user(
-        username="student003",
         email="student003@school.edu",
         password="testpass123",
         first_name="Bob",
@@ -315,7 +357,6 @@ def multiple_student_users(db, student_role):
     users = []
     for i in range(1, 6):
         user = User.objects.create_user(
-            username=f"student{i:03d}",
             email=f"student{i:03d}@school.edu",
             password="testpass123",
             first_name=f"Student{i}",
@@ -330,7 +371,6 @@ def multiple_student_users(db, student_role):
 def non_student_user(db):
     """Create a user WITHOUT student role."""
     user = User.objects.create_user(
-        username="teacher001",
         email="teacher001@school.edu",
         password="testpass123",
         first_name="Teacher",

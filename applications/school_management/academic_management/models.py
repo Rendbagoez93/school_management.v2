@@ -64,7 +64,8 @@ class AcademicYear(BaseSoftDeletableModel):
         ):
             raise ValidationError("Both enrollment start and end dates must be set.")
         
-        if self.enrollment_start_date and self.enrollment_end_date and not (
+        # Only validate enrollment period dates for non-completed years
+        if self.status != self.Status.COMPLETED and self.enrollment_start_date and self.enrollment_end_date and not (
             self.start_date <= self.enrollment_start_date < self.enrollment_end_date <= self.end_date
         ):
             raise ValidationError("Enrollment period must be within academic year dates.")
@@ -76,6 +77,7 @@ class AcademicYear(BaseSoftDeletableModel):
         if self.status != self.Status.SETUP and not self.setup_completed:
             raise ValidationError("setup_completed must be True when status is not SETUP.")
         
+        # Prevent reverting to SETUP when setup is already completed
         if self.status == self.Status.SETUP and self.setup_completed:
             raise ValidationError("Cannot be in SETUP status when setup is already completed.")
 
@@ -97,6 +99,11 @@ class AcademicYear(BaseSoftDeletableModel):
     
     def can_accept_grades(self) -> bool:
         return self.status in {self.Status.SETUP, self.Status.ENROLLMENT}
+    
+    def save(self, *args, **kwargs):
+        # Only validate model fields, not uniqueness constraints
+        self.clean()
+        super().save(*args, **kwargs)
 
 
 class StudentEnrollment(BaseSoftDeletableModel):
@@ -109,11 +116,18 @@ class StudentEnrollment(BaseSoftDeletableModel):
     joined_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("student", "academic_year")
+        base_manager_name = 'objects'  # Use soft-delete-aware manager for ManyToMany through
         indexes = [
             models.Index(fields=["academic_year"]),
             models.Index(fields=["grade"]),
             models.Index(fields=["student"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'academic_year'],
+                condition=models.Q(is_deleted=False),
+                name='unique_student_per_year_not_deleted'
+            )
         ]
         verbose_name = "Grade Student"
         verbose_name_plural = "Grade Students"

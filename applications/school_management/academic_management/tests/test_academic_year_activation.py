@@ -404,7 +404,7 @@ class TestRealWorldActivationScenarios:
         assert academic_year.can_accept_grades() is True  # Still can create grades
         
         # Phase 3: Enroll students
-        student = User.objects.create_user(username="student_lifecycle", email="student@test.com")
+        student = User.objects.create_user(email="student@test.com")
         StudentEnrollment.objects.create(
             student=student,
             grade=grade,

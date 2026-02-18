@@ -3,6 +3,8 @@ from typing import Union
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.db import IntegrityError, models, transaction
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 from config.roles import RoleEnum
 from modules.user.managers import DefaultUserManager
@@ -13,6 +15,10 @@ ProfileClass = Union["Parent", "Student", "SchoolStaff"]
 
 
 class SchoolUserManager(DefaultUserManager):
+    def get_queryset(self):
+        """Return queryset excluding soft-deleted users."""
+        return super().get_queryset().filter(is_deleted=False)
+    
     def all(self):
         """Return all users in the school management system."""
         return self.filter(groups__name__in=RoleEnum.to_list()).prefetch_related("groups")
@@ -104,18 +110,41 @@ class SchoolUser(User):
         verbose_name = "School User"
 
     @property
+    def parents(self):
+        """Get all parent users for this student.
+        
+        Returns SchoolUser objects (not Parent profile objects).
+        """
+        # Get all parent profiles that have this user as a child
+        from applications.user_management.models import Parent
+        parent_profiles = Parent.objects.filter(children=self)
+        # Return the users associated with those parent profiles
+        return SchoolUser.objects.filter(parent__in=parent_profiles)
+
+    @property
     def profile(self) -> ProfileClass:
         """Return the user's profile (Parent, Student, or SchoolStaff).
         
         NOTE: Profile access is kept for backward compatibility.
         Consider using direct access (user.parent, user.student, user.schoolstaff) instead.
         """
-        if hasattr(self, "parent") and self.parent:
+        from django.core.exceptions import ObjectDoesNotExist
+        
+        try:
             return self.parent
-        elif hasattr(self, "student") and self.student:
+        except ObjectDoesNotExist:
+            pass
+        
+        try:
             return self.student
-        elif hasattr(self, "schoolstaff") and self.schoolstaff:
+        except ObjectDoesNotExist:
+            pass
+        
+        try:
             return self.schoolstaff
+        except ObjectDoesNotExist:
+            pass
+        
         raise ValueError("User profile not found.")
 
 class BaseUserTypeManager(models.Manager):
@@ -153,6 +182,16 @@ class BaseUserType(TimeStampedModel):
 
     objects = BaseUserTypeManager()
 
+    @property
+    def created_at(self):
+        """Alias for date_joined for backward compatibility."""
+        return self.date_joined
+    
+    @property
+    def updated_at(self):
+        """Alias for date_modified for backward compatibility."""
+        return self.date_modified
+
     def __str__(self):
         return f"Profile of {self.user.get_full_name()}"
 
@@ -165,7 +204,7 @@ class BaseUserType(TimeStampedModel):
 class Parent(BaseUserType):
     children = models.ManyToManyField(
         SchoolUser, 
-        related_name="parents", 
+        related_name="parent_profiles", 
         blank=True,
         help_text="Students associated with this parent"
     )
@@ -189,9 +228,9 @@ class Parent(BaseUserType):
         """Get list of all children.
         
         NOTE: Role filtering moved to service layer.
-        This returns all associated children.
+        This returns all associated children ordered by email.
         """
-        return self.children.all()
+        return self.children.all().order_by('email')
     
     def clean(self):
         """Validate parent profile.
@@ -211,3 +250,29 @@ class SchoolStaff(BaseUserType):
     class Meta:
         verbose_name = "School Staff"
         verbose_name_plural = "School Staff"
+
+
+# Signal handlers to ensure profile deletion when user is deleted
+@receiver(pre_delete, sender=User)
+def delete_user_profiles(sender, instance, **kwargs):
+    """Delete user profiles when user is deleted (soft or hard delete)."""
+    from django.core.exceptions import ObjectDoesNotExist
+    
+    # Try to delete each profile type if it exists
+    try:
+        if hasattr(instance, 'student'):
+            instance.student.delete()
+    except ObjectDoesNotExist:
+        pass
+    
+    try:
+        if hasattr(instance, 'parent'):
+            instance.parent.delete()
+    except ObjectDoesNotExist:
+        pass
+    
+    try:
+        if hasattr(instance, 'schoolstaff'):
+            instance.schoolstaff.delete()
+    except ObjectDoesNotExist:
+        pass

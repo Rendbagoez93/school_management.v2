@@ -51,7 +51,7 @@ class TestSchoolConfigModel:
         from config.settings.schoolconf import SchoolConfig
 
         config = SchoolConfig()
-        assert config.name == "SMA Islam Malang"
+        assert config.name == "SMA Swasta"
         assert config.address == "Jln R.A kartini, Malang, Indonesia"
         assert config.phone == "+62 341 123456"
         assert config.email == "info@smaislammalang.sch.id"
@@ -210,7 +210,7 @@ class TestSchoolConfigIntegration:
             SCHOOL_DESCRIPTION,
         )
 
-        assert SCHOOL_NAME == "SMA Islam Malang"
+        assert SCHOOL_NAME == "SMA Swasta"
         assert SCHOOL_ADDRESS is not None
         assert SCHOOL_PHONE is not None
         assert SCHOOL_EMAIL is not None

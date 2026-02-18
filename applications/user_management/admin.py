@@ -10,10 +10,10 @@ from applications.user_management.models import Parent, SchoolStaff, SchoolUser,
 class SchoolUserAdmin(BaseUserAdmin):
     """Admin interface for SchoolUser model."""
 
-    list_display = ("username", "email", "first_name", "last_name", "is_staff", "get_roles")
+    list_display = ("email", "first_name", "last_name", "is_staff", "get_roles")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("username", "first_name", "last_name", "email")
-    ordering = ("username",)
+    search_fields = ("email", "first_name", "last_name")
+    ordering = ("email",)
 
     def get_roles(self, obj):
         """Display user roles."""
@@ -26,11 +26,11 @@ class SchoolUserAdmin(BaseUserAdmin):
 class ParentAdmin(admin.ModelAdmin):
     """Admin interface for Parent model."""
 
-    list_display = ("user", "get_user_email", "created_at", "updated_at")
-    search_fields = ("user__username", "user__email", "user__first_name", "user__last_name")
-    list_filter = ("created_at", "updated_at")
+    list_display = ("user", "get_user_email", "date_joined", "date_modified")
+    search_fields = ("user__email", "user__first_name", "user__last_name")
+    list_filter = ("date_joined", "date_modified")
     filter_horizontal = ("children",)
-    readonly_fields = ("created_at", "updated_at")
+    readonly_fields = ("date_joined", "date_modified")
 
     def get_user_email(self, obj):
         """Display user email."""
@@ -43,10 +43,10 @@ class ParentAdmin(admin.ModelAdmin):
 class StudentAdmin(admin.ModelAdmin):
     """Admin interface for Student model."""
 
-    list_display = ("user", "get_user_email", "created_at", "updated_at")
-    search_fields = ("user__username", "user__email", "user__first_name", "user__last_name")
-    list_filter = ("created_at", "updated_at")
-    readonly_fields = ("created_at", "updated_at")
+    list_display = ("user", "get_user_email", "date_joined", "date_modified")
+    search_fields = ("user__email", "user__first_name", "user__last_name")
+    list_filter = ("date_joined", "date_modified")
+    readonly_fields = ("date_joined", "date_modified")
 
     def get_user_email(self, obj):
         """Display user email."""
@@ -59,10 +59,10 @@ class StudentAdmin(admin.ModelAdmin):
 class SchoolStaffAdmin(admin.ModelAdmin):
     """Admin interface for SchoolStaff model."""
 
-    list_display = ("user", "get_user_email", "get_staff_role", "created_at", "updated_at")
-    search_fields = ("user__username", "user__email", "user__first_name", "user__last_name")
-    list_filter = ("created_at", "updated_at", "user__groups")
-    readonly_fields = ("created_at", "updated_at")
+    list_display = ("user", "get_user_email", "get_staff_role", "date_joined", "date_modified")
+    search_fields = ("user__email", "user__first_name", "user__last_name")
+    list_filter = ("date_joined", "date_modified", "user__groups")
+    readonly_fields = ("date_joined", "date_modified")
 
     def get_user_email(self, obj):
         """Display user email."""

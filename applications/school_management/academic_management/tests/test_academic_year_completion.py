@@ -132,8 +132,8 @@ class TestGradeCreationRestrictions:
     def test_existing_grades_remain_accessible(self, completed_academic_year):
         """Test that existing grades can still be queried."""
         # Create grade before completing (would have been created during setup)
-        # Moving year back to ACTIVE to create grade
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        # Moving year back to SETUP to create grade
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -163,7 +163,7 @@ class TestStudentEnrollmentRestrictions:
         This allows for historical data corrections.
         """
         # Create grade (from before completion)
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -188,7 +188,7 @@ class TestStudentEnrollmentRestrictions:
     def test_existing_enrollments_remain_accessible(self, completed_academic_year):
         """Test that existing enrollments can be queried after completion."""
         # Create enrollment before completing
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -198,7 +198,6 @@ class TestStudentEnrollmentRestrictions:
         )
         
         student = User.objects.create_user(
-            username="historical_student",
             email="historical@test.com"
         )
         
@@ -232,7 +231,7 @@ class TestCompletedYearOperations:
     def test_can_query_completed_year_data(self, completed_academic_year):
         """Test that completed year data can be queried for reports."""
         # Create some historical data
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         grades = [
@@ -399,7 +398,6 @@ class TestRealWorldCompletionScenarios:
         # Enroll students
         students = [
             User.objects.create_user(
-                username=f"student_{i}",
                 email=f"student_{i}@test.com"
             )
             for i in range(5)
@@ -430,7 +428,7 @@ class TestRealWorldCompletionScenarios:
     def test_archived_year_for_reports(self, completed_academic_year):
         """Test querying completed year for report generation."""
         # Generate enrollment report
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -441,7 +439,6 @@ class TestRealWorldCompletionScenarios:
         
         students = [
             User.objects.create_user(
-                username=f"report_student_{i}",
                 email=f"report_student_{i}@test.com"
             )
             for i in range(10)
@@ -477,7 +474,7 @@ class TestRealWorldCompletionScenarios:
         )
         
         # Setup historical data in completed year
-        completed_academic_year.status = AcademicYear.Status.ACTIVE
+        completed_academic_year.status = AcademicYear.Status.SETUP
         completed_academic_year.save()
         
         old_grade = Grade.objects.create(
@@ -488,7 +485,6 @@ class TestRealWorldCompletionScenarios:
         
         students = [
             User.objects.create_user(
-                username=f"promote_student_{i}",
                 email=f"promote_student_{i}@test.com"
             )
             for i in range(3)

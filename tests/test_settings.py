@@ -123,7 +123,7 @@ class TestSchoolConfiguration:
 
         assert SCHOOL_NAME
         assert isinstance(SCHOOL_NAME, str)
-        assert SCHOOL_NAME == "SMA Islam Malang"
+        assert SCHOOL_NAME == "SMA Swasta"
 
     def test_school_address_configured(self):
         """Test that school address is loaded."""
