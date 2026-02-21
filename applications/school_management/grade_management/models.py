@@ -68,6 +68,17 @@ class Grade(BaseSoftDeletableModel):
     def clean(self):
         super().clean()
         
+        # Validate name field
+        if not self.name or not self.name.strip():
+            raise ValidationError({
+                "name": "Grade name is required."
+            })
+        
+        if len(self.name) > 64:
+            raise ValidationError({
+                "name": f"Grade name too long ({len(self.name)}) max 64 characters allowed."
+            })
+        
         # Validate academic_year dependency only on creation (not updates)
         if self.academic_year_id and not self.pk and not self.can_be_created_for_year(self.academic_year):
             raise ValidationError({

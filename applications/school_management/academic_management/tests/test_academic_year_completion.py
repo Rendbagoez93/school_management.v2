@@ -134,6 +134,7 @@ class TestGradeCreationRestrictions:
         # Create grade before completing (would have been created during setup)
         # Moving year back to SETUP to create grade
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -143,6 +144,7 @@ class TestGradeCreationRestrictions:
         )
         
         # Complete the year again
+        completed_academic_year.setup_completed = True
         completed_academic_year.status = AcademicYear.Status.COMPLETED
         completed_academic_year.save()
         

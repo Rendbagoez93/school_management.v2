@@ -10,6 +10,7 @@ from datetime import date, timedelta
 
 import pytest
 from django.contrib.auth import get_user_model
+from freezegun import freeze_time
 
 User = get_user_model()
 
@@ -20,6 +21,7 @@ User = get_user_model()
 class TestUserDemographics:
     """Test cases for User model demographics functionality."""
 
+    @freeze_time("2025-01-15")
     def test_age_calculation(self, user_factory):
         """Test age calculation from date of birth."""
         # User born exactly 25 years ago today
@@ -38,6 +40,7 @@ class TestUserDemographics:
         user_no_birth = user_factory(date_of_birth=None)
         assert user_no_birth.get_age() is None
 
+    @freeze_time("2025-01-15")
     def test_age_calculation_before_birthday(self, user_factory):
         """Test age calculation before birthday this year."""
         today = date.today()
@@ -48,6 +51,7 @@ class TestUserDemographics:
         # Should be 24, not 25 yet
         assert user.get_age() == 24
 
+    @freeze_time("2025-01-15")
     def test_birthday_check(self, user_factory):
         """Test birthday checking."""
         today = date.today()

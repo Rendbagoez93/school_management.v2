@@ -9,6 +9,7 @@ This module provides test fixtures for:
 """
 
 import pytest
+import uuid
 from datetime import date, timedelta
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -225,9 +226,9 @@ def grade_in_completed(db, base_date):
     past_start = base_date - timedelta(days=730)  # 2 years ago
     past_end = base_date - timedelta(days=365)    # 1 year ago
     
-    # Create academic year in SETUP status first
+    # Create academic year in SETUP status first with unique name
     ay = AcademicYear.objects.create(
-        name="2024/2025 Completed",
+        name=f"2024/2025 Completed {uuid.uuid4().hex[:8]}",
         start_date=past_start,
         end_date=past_end,
         enrollment_start_date=past_start + timedelta(days=30),

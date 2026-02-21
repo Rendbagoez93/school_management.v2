@@ -211,14 +211,23 @@ class TestMidYearOperations:
         student_user,
     ):
         """Test that students can be enrolled in active mid-year (pre-existing)."""
-        # Create a grade first (would have been created during setup)
+        # Grades must be created before moving to ACTIVE (during SETUP phase)
+        mid_year_academic_year.status = AcademicYear.Status.SETUP
+        mid_year_academic_year.setup_completed = False
+        mid_year_academic_year.save()
+        
+        # Create a grade during SETUP (would have been created during setup)
         grade = Grade.objects.create(
             name="Mid-Year Active Grade",
             grade="1",
             academic_year=mid_year_academic_year,
         )
         
-        # Note: In reality, grades would be created before moving to ACTIVE
+        # Now transition to ACTIVE
+        mid_year_academic_year.setup_completed = True
+        mid_year_academic_year.status = AcademicYear.Status.ACTIVE
+        mid_year_academic_year.save()
+        
         # This tests that enrollment can happen in ACTIVE status
         enrollment = StudentEnrollment.objects.create(
             student=student_user,
