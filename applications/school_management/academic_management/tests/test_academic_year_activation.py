@@ -163,12 +163,22 @@ class TestStudentEnrollmentDuringActive:
         Note: Business logic might restrict this, but model allows it
         for late enrollments or transfers.
         """
-        # Create a grade (from before activation)
+        # Create a grade first in SETUP status, then transition to ACTIVE
+        # (Grades must be created during SETUP phase)
+        active_academic_year.status = AcademicYear.Status.SETUP
+        active_academic_year.setup_completed = False
+        active_academic_year.save()
+        
         grade = Grade.objects.create(
             name="Active Year Grade",
             grade="1",
             academic_year=active_academic_year,
         )
+        
+        # Now transition back to ACTIVE
+        active_academic_year.setup_completed = True
+        active_academic_year.status = AcademicYear.Status.ACTIVE
+        active_academic_year.save()
         
         # Enrollment is technically allowed at model level
         enrollment = StudentEnrollment.objects.create(
@@ -183,11 +193,21 @@ class TestStudentEnrollmentDuringActive:
     def test_late_enrollment_scenario(self, active_academic_year, student_user):
         """Test late enrollment scenario (student transfers mid-year)."""
         # In real world, a student might transfer to school mid-year
+        # Grades must be created during SETUP phase
+        active_academic_year.status = AcademicYear.Status.SETUP
+        active_academic_year.setup_completed = False
+        active_academic_year.save()
+        
         grade = Grade.objects.create(
             name="Transfer Grade",
             grade="3",
             academic_year=active_academic_year,
         )
+        
+        # Now activate the academic year
+        active_academic_year.setup_completed = True
+        active_academic_year.status = AcademicYear.Status.ACTIVE
+        active_academic_year.save()
         
         # Late enrollment is allowed
         enrollment = StudentEnrollment.objects.create(
@@ -404,7 +424,7 @@ class TestRealWorldActivationScenarios:
         assert academic_year.can_accept_grades() is True  # Still can create grades
         
         # Phase 3: Enroll students
-        student = User.objects.create_user(username="student_lifecycle", email="student@test.com")
+        student = User.objects.create_user(email="student@test.com")
         StudentEnrollment.objects.create(
             student=student,
             grade=grade,

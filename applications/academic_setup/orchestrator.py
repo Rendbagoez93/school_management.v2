@@ -318,7 +318,7 @@ class AcademicYearOrchestrator:
 
     @staticmethod
     @transaction.atomic
-    def unenroll_student(grade: Grade, student) -> None:
+    def unenroll_student(grade: Grade, student) -> StudentEnrollment:
         enrollment = StudentEnrollment.objects.filter(
             student=student,
             grade=grade,
@@ -330,6 +330,7 @@ class AcademicYearOrchestrator:
             raise ValidationError("Student is not enrolled in this grade")
 
         enrollment.delete()  # Soft delete via BaseSoftDeletableModel
+        return enrollment
 
     @staticmethod
     @transaction.atomic
@@ -337,11 +338,22 @@ class AcademicYearOrchestrator:
         if from_grade.academic_year != to_grade.academic_year:
             raise ValidationError("Cannot transfer student between different academic years")
 
-        # Unenroll from old grade
-        AcademicYearOrchestrator.unenroll_student(from_grade, student)
-
-        # Enroll in new grade
-        return AcademicYearOrchestrator.enroll_student(to_grade, student)
+        # Get the existing enrollment
+        enrollment = StudentEnrollment.objects.select_for_update().filter(
+            student=student,
+            grade=from_grade,
+            academic_year=from_grade.academic_year,
+            is_deleted=False,
+        ).first()
+        
+        if not enrollment:
+            raise ValidationError("Student is not enrolled in the source grade")
+        
+        # Update the grade (preserves joined_at timestamp and avoids unique constraint issues)
+        enrollment.grade = to_grade
+        enrollment.save()
+        
+        return enrollment
 
     @staticmethod
     @transaction.atomic

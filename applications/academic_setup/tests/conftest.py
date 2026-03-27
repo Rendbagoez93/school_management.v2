@@ -31,8 +31,8 @@ def academic_year_dates(current_date):
     return {
         "start_date": current_date,
         "end_date": current_date + timedelta(days=365),
-        "enrollment_start_date": current_date - timedelta(days=30),
-        "enrollment_end_date": current_date - timedelta(days=1),
+        "enrollment_start_date": current_date,
+        "enrollment_end_date": current_date + timedelta(days=30),
     }
 
 
@@ -76,11 +76,17 @@ def mid_year_academic_year(db, mid_year_dates):
 @pytest.fixture
 def active_academic_year(db, academic_year_dates):
     """Create an active academic year (setup completed)."""
+    # Use dates from previous year
+    prev_year_start = academic_year_dates["start_date"] - timedelta(days=365)
+    prev_year_end = academic_year_dates["start_date"]
+    
     academic_year = AcademicYearOrchestrator.create_academic_year(
         name="2025-2026-Active",
-        start_date=academic_year_dates["start_date"] - timedelta(days=365),
-        end_date=academic_year_dates["start_date"],
+        start_date=prev_year_start,
+        end_date=prev_year_end,
         deployment_type=AcademicYear.DeploymentType.FRESH_START,
+        enrollment_start_date=prev_year_start,
+        enrollment_end_date=prev_year_start + timedelta(days=30),
     )
     
     # Complete all setup steps
@@ -275,18 +281,25 @@ def partial_failure_import_task(fresh_start_academic_year):
         file_path="/uploads/students_partial.csv",
     )
     AcademicYearOrchestrator.report_import_started(task)
+    
+    # Build error details with 30 errors
+    error_list = [
+        {"row": 15, "error": "Invalid email format"},
+        {"row": 23, "error": "Missing required field"},
+    ]
+    # Add remaining errors to get to 30 total
+    for i in range(3, 31):
+        error_list.append({
+            "row": 100 + i,
+            "error": f"Validation error {i}",
+        })
+    
     AcademicYearOrchestrator.report_import_progress(
         task,
         processed=500,
         success=470,
         errors=30,
-        error_details={
-            "errors": [
-                {"row": 15, "error": "Invalid email format"},
-                {"row": 23, "error": "Missing required field"},
-                # ... more errors
-            ]
-        }
+        error_details={"errors": error_list}
     )
     # Mark as completed even with errors
     AcademicYearOrchestrator.report_import_completed(task)

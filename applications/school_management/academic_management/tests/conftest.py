@@ -35,8 +35,8 @@ def academic_year_dates(base_date):
     return {
         "start_date": base_date,  # 2026-07-01
         "end_date": base_date + timedelta(days=364),  # 2027-06-30
-        "enrollment_start_date": base_date - timedelta(days=16),  # 2026-06-15
-        "enrollment_end_date": base_date + timedelta(days=14),  # 2026-07-15
+        "enrollment_start_date": base_date + timedelta(days=1),  # 2026-07-02 (within academic year)
+        "enrollment_end_date": base_date + timedelta(days=30),  # 2026-07-31 (within academic year)
     }
 
 
@@ -237,15 +237,33 @@ def grade_for_enrollment_year(setup_completed_academic_year):
 
 
 @pytest.fixture
-def grade_for_active_year(active_academic_year):
+def grade_for_active_year(db, academic_year_dates):
     """Create a grade for active academic year."""
-    return Grade.objects.create(
+    # Create academic year in SETUP status first
+    ay = AcademicYear.objects.create(
+        name="2025 / 2026 - Active",
+        start_date=academic_year_dates["start_date"] - timedelta(days=365),
+        end_date=academic_year_dates["start_date"] - timedelta(days=1),
+        deployment_type=AcademicYear.DeploymentType.FRESH_START,
+        status=AcademicYear.Status.SETUP,
+        setup_completed=False,
+    )
+    
+    # Create grade while in valid status
+    grade = Grade.objects.create(
         name="Class 3C",
         grade="3",
         grade_type="Primary",
-        academic_year=active_academic_year,
+        academic_year=ay,
         description="Third grade section C",
     )
+    
+    # Now transition to ACTIVE status
+    ay.status = AcademicYear.Status.ACTIVE
+    ay.setup_completed = True
+    ay.save()
+    
+    return grade
 
 
 # ========================================================================
@@ -256,7 +274,6 @@ def grade_for_active_year(active_academic_year):
 def student_user(db):
     """Create a student user for enrollment testing."""
     return User.objects.create_user(
-        username="student001",
         email="student001@school.edu",
         first_name="John",
         last_name="Doe",
@@ -269,7 +286,6 @@ def student_users(db):
     students = []
     for i in range(1, 6):
         student = User.objects.create_user(
-            username=f"student{i:03d}",
             email=f"student{i:03d}@school.edu",
             first_name=f"Student{i}",
             last_name="User",

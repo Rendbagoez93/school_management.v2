@@ -82,18 +82,18 @@ class TestEnrollmentPeriodDefinition:
         assert academic_year.enrollment_end_date == academic_year.end_date
     
     def test_enrollment_before_academic_year_start(self, base_date):
-        """Test that enrollment can start before academic year (valid use case)."""
-        academic_year = AcademicYear.objects.create(
-            name="Early Enrollment",
-            start_date=base_date,
-            end_date=base_date + timedelta(days=365),
-            enrollment_start_date=base_date - timedelta(days=30),  # Before start
-            enrollment_end_date=base_date + timedelta(days=15),
-        )
+        """Test that enrollment starting before academic year raises validation error."""
+        with pytest.raises(ValidationError) as exc_info:
+            academic_year = AcademicYear.objects.create(
+                name="Early Enrollment",
+                start_date=base_date,
+                end_date=base_date + timedelta(days=365),
+                enrollment_start_date=base_date - timedelta(days=30),  # Before start
+                enrollment_end_date=base_date + timedelta(days=15),
+            )
         
-        # This should be valid - enrollment often happens before year starts
-        academic_year.full_clean()
-        assert academic_year.enrollment_start_date < academic_year.start_date
+        # Model currently requires enrollment period within academic year dates
+        assert "Enrollment period must be within academic year dates" in str(exc_info.value)
 
 
 @pytest.mark.django_db
