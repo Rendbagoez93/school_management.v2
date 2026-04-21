@@ -28,6 +28,12 @@ class CommonEnvSettings(BaseSettings):
         description="List of allowed host/domain names",
     )
 
+    # CORS (for mobile apps)
+    CORS_ALLOWED_ORIGINS: list[str] = Field(
+        default=["http://localhost:8000", "http://127.0.0.1:8000", "http://10.0.2.2:8000"],
+        description="List of allowed CORS origins for mobile apps",
+    )
+
     # Internationalization
     LANGUAGE_CODE: str = Field(default="en-us", description="Language code for the application")
     TIME_ZONE: str = Field(default="Asia/Jakarta", description="Time zone for the application")

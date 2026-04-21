@@ -45,6 +45,7 @@ class SchoolUserManager(DefaultUserManager):
     @transaction.atomic
     def create_principal(self, **user_data):
         group = Group.objects.get(name=RoleEnum.PRINCIPAL.value)
+        user_data['role'] = RoleEnum.PRINCIPAL.value  # Set role field
         user = self.create_staffuser(**user_data)
         SchoolStaff.objects.create(user=user)
         group.user_set.add(user)
@@ -53,6 +54,7 @@ class SchoolUserManager(DefaultUserManager):
     @transaction.atomic
     def create_vp(self, **user_data):
         group = Group.objects.get(name=RoleEnum.VP.value)
+        user_data['role'] = RoleEnum.VP.value  # Set role field
         user = self.create_staffuser(**user_data)
         SchoolStaff.objects.create(user=user)
         group.user_set.add(user)
@@ -61,6 +63,7 @@ class SchoolUserManager(DefaultUserManager):
     @transaction.atomic
     def create_parent(self, **user_data):
         group = Group.objects.get(name=RoleEnum.PARENT.value)
+        user_data['role'] = RoleEnum.PARENT.value  # Set role field
         user = self.create_user(**user_data)
         Parent.objects.create(user=user)
         group.user_set.add(user)
@@ -69,6 +72,7 @@ class SchoolUserManager(DefaultUserManager):
     @transaction.atomic
     def create_student(self, **user_data):
         group = Group.objects.get(name=RoleEnum.STUDENT.value)
+        user_data['role'] = RoleEnum.STUDENT.value  # Set role field
         user = self.create_user(**user_data)
         Student.objects.create(user=user)
         group.user_set.add(user)
@@ -83,6 +87,7 @@ class SchoolUserManager(DefaultUserManager):
         """
 
         group = Group.objects.get(name=RoleEnum.TEACHER.value)
+        user_data['role'] = RoleEnum.TEACHER.value  # Set role field
         user = self.create_staffuser(**user_data)
 
         SchoolStaff.objects.create(user=user)
@@ -93,6 +98,7 @@ class SchoolUserManager(DefaultUserManager):
     @transaction.atomic
     def create_staff(self, **user_data):
         group = Group.objects.get(name=RoleEnum.STAFF.value)
+        user_data['role'] = RoleEnum.STAFF.value  # Set role field
         user = self.create_staffuser(**user_data)
         SchoolStaff.objects.create(user=user)
         group.user_set.add(user)

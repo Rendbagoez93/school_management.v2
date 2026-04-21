@@ -8,6 +8,7 @@ from django.db.models.functions import Lower
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from config.roles import RoleEnum
 from shared.base_models import BaseSoftDeletableModel
 
 from .managers import DefaultUserManager
@@ -70,6 +71,18 @@ class AbstractUser(
         help_text=_("Optional. Your date of birth."),
     )
 
+    # Role field for API filtering (synced with Groups for permissions)
+    # Uses RoleEnum from config.roles for consistency across the codebase
+    role = models.CharField(
+        _("role"),
+        max_length=20,
+        choices=[(role.value, role.value) for role in RoleEnum],
+        blank=True,
+        null=True,
+        db_index=True,
+        help_text=_("User's primary role in the system. Synced with Django Groups."),
+    )
+
     # Account status fields
     is_active = models.BooleanField(
         _("active"),
@@ -107,6 +120,7 @@ class AbstractUser(
             models.Index(fields=["is_active", "is_staff"]),
             models.Index(fields=["date_joined"]),
             models.Index(fields=["last_login"]),
+            models.Index(fields=["role"]),  # For API filtering by role
         ]
         constraints = [
             models.UniqueConstraint(
