@@ -4,17 +4,20 @@ __pycache__/
 *.pyo
 *.pyd
 *.so
+*.pyc
 build/
 dist/
 wheels/
 *.egg-info
 *.egg
+*.whl
 
 # Virtual environments
 .venv/
 venv/
 ENV/
 env/
+.Python
 
 # Django-specific
 *.log
@@ -23,11 +26,20 @@ db.sqlite3-journal
 /staticfiles/
 /mediafiles/
 local_settings.py
+*.pot
+
+# Django migrations (uncomment to ignore auto-generated migrations)
+# */migrations/*.py
+# !*/migrations/__init__.py
 
 # Environment variables and secrets
 .env
 .env.local
 .env.*.local
+.env.production
+.env.staging
+*.pem
+*.key
 
 # IDE and editor files
 .vscode/
@@ -36,6 +48,10 @@ local_settings.py
 *.swo
 *~
 .DS_Store
+Thumbs.db
+*.sublime-project
+*.sublime-workspace
+.vscode-test/
 
 # Testing and coverage
 .pytest_cache/
@@ -44,13 +60,74 @@ local_settings.py
 htmlcov/
 .tox/
 .hypothesis/
+coverage.xml
+*.cover
+.cache
+nosetests.xml
+test-results/
+
+# Type checking and linting
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.pytype/
+pyrightconfig.json
 
 # UV package manager
 uv.lock
 
 # Documentation builds
 docs/_build/
+site/
 
 # Backup files
 *.bak
 *.tmp
+*.orig
+*~
+
+# OS-specific
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Node.js (if using frontend tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Compiled translations
+*.mo
+
+# Local development overrides
+local/
+local_*.py
+local_*.yaml
+local_*.yml
+
+# Session and runtime files
+*.sock
+*.pid
+
+# Security and credentials
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+secrets.yaml
+credentials.json
