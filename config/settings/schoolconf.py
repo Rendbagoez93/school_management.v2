@@ -1,8 +1,7 @@
 from typing import Literal
 
 from pydantic import BaseModel
-from pydantic_settings import SettingsConfigDict
-from pydantic_settings_yaml import YamlBaseSettings
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict, YamlConfigSettingsSource
 
 
 class SchoolAttribute(BaseModel):
@@ -11,7 +10,7 @@ class SchoolAttribute(BaseModel):
     type: Literal["string", "number", "boolean", "array", "object"] = "string"
 
 
-class SchoolConfig(YamlBaseSettings):
+class SchoolConfig(BaseSettings):
     """Common school config with dynamic attributes."""
 
     name: str
@@ -20,6 +19,23 @@ class SchoolConfig(YamlBaseSettings):
     email: str | None = None
     description: str | None = None
     attributes: list[SchoolAttribute] | None = None
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        return (
+            init_settings,
+            YamlConfigSettingsSource(settings_cls),
+            env_settings,
+            dotenv_settings,
+            file_secret_settings,
+        )
 
     model_config = SettingsConfigDict(
         extra="ignore",

@@ -7,6 +7,8 @@ It imports environment-specific settings from envcommon.py and database config.
 
 from pathlib import Path
 
+import structlog
+
 from .envcommon import CommonEnvSettings
 from .factory import get_django_db_dict
 from .schoolconf import SchoolConfig
@@ -192,4 +194,33 @@ SPECTACULAR_SETTINGS = {
 # CORS Configuration (for mobile apps)
 CORS_ALLOWED_ORIGINS = env.CORS_ALLOWED_ORIGINS
 CORS_ALLOW_CREDENTIALS = True
+
+
+# Logging Configuration
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
+
+
+structlog.configure(
+    processors=[
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.add_logger_name,
+        structlog.processors.JSONRenderer(),
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
 

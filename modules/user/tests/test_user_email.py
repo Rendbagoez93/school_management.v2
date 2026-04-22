@@ -22,10 +22,9 @@ class TestUserEmail:
     """Test cases for User model email functionality."""
 
     def test_email_normalization(self, user_factory):
-        """Test email domain is normalized to lowercase."""
+        """Test email is normalized to lowercase."""
         user = user_factory(email="Test@EXAMPLE.COM")
-        # Domain should be lowercase, local part unchanged
-        assert user.email == "Test@example.com"
+        assert user.email == "test@example.com"
 
     def test_email_uniqueness(self, user_factory):
         """Test that emails must be unique."""

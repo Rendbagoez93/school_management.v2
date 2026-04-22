@@ -14,16 +14,6 @@ from applications.user_management.models import SchoolUser
 
 
 class SchoolUserMiddleware:
-    """Middleware that attaches SchoolUser instance to request.
-    
-    This middleware:
-    - Converts the default User instance to SchoolUser proxy model
-    - Prefetches related groups for role checking efficiency
-    - Handles unauthenticated users gracefully
-    - Caches the result to avoid multiple database queries
-    
-    """
-
     def __init__(self, get_response: Callable[[HttpRequest], HttpResponse]):
         self.get_response = get_response
 
