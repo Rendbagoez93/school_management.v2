@@ -105,7 +105,7 @@ class ParentService:
             invalid_children = parent.children.exclude(groups__name=RoleEnum.STUDENT.value)
             if invalid_children.exists():
                 invalid_names = ", ".join(
-                    invalid_children.values_list('username', flat=True)[:5]
+                    invalid_children.values_list('email', flat=True)[:5]
                 )
                 raise ValidationError({
                     'children': f'All children must have STUDENT role. '
