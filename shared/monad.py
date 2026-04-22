@@ -1,6 +1,6 @@
-import logging
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger(__name__)
 
 
 class Maybe:
@@ -81,7 +81,7 @@ class Either:
             try:
                 return Either(func(*args, **kwargs))
             except Exception:
-                logger.debug(f"Error occurred while binding {func.__name__}")
+                logger.debug("either_bind_failed", function=func.__name__)
                 return Either(None)
 
     def unwrap(self):

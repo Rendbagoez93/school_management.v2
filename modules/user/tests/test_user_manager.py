@@ -106,5 +106,4 @@ class TestUserManager:
         """Test email normalization in user creation."""
         user = User.objects.create_user(email="Test@EXAMPLE.COM", password="testpass123")
 
-        # Domain should be lowercase
-        assert user.email == "Test@example.com"
+        assert user.email == "test@example.com"

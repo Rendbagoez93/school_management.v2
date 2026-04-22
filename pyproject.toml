@@ -11,18 +11,15 @@ dependencies = [
     "pydantic-settings-yaml>=0.2.0",
     "psycopg[binary]>=3.2.0",
     "djangorestframework>=3.15.0",
+    "djangorestframework-simplejwt>=5.5.0",
+    "drf-spectacular>=0.29.0",
+    "django-filter>=25.2",
+    "django-cors-headers>=4.9.0",
     "structlog>=25.0.0",
     "python-json-logger>=3.2.0",
 ]
 
 [project.optional-dependencies]
-api = [
-    "djangorestframework-simplejwt>=5.5.0",
-    "drf-spectacular>=0.29.0",
-    "django-filter>=25.2",
-    "django-cors-headers>=4.9.0",
-]
-
 content = [
     "django-ckeditor-5>=0.2.18",
     "pillow>=12.0.0",

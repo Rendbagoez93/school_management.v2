@@ -47,11 +47,9 @@ class UserFactory(DjangoModelFactory):
     @classmethod
     def _create(cls, model_class, *args, **kwargs):
         """Override create to normalize email before saving."""
-        # Normalize email domain to lowercase
-        email = kwargs.get('email', '')
-        if email and '@' in email:
-            local_part, domain = email.rsplit('@', 1)
-            kwargs['email'] = f"{local_part}@{domain.lower()}"
+        email = kwargs.get("email", "")
+        if email:
+            kwargs["email"] = email.lower()
         
         # Call the default create method
         return super()._create(model_class, *args, **kwargs)

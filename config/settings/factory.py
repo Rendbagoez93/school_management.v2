@@ -1,5 +1,3 @@
-from dependency_injector import containers, providers
-
 from .databases import (
     BaseDatabaseSettings,
     DBEngineEnum,
@@ -9,26 +7,16 @@ from .databases import (
 )
 
 
-class DbContainer(containers.DeclarativeContainer):
-    config = providers.Configuration()
-    db_factory = providers.FactoryAggregate(
-        {
-            DBEngineEnum.SQLITE: providers.Factory(SqliteDatabaseSettings),
-            DBEngineEnum.POSTGRES: providers.Factory(PostgresDatabaseSettings),
-        }
-    )
-    fct = providers.Factory(db_factory, config.engine)
-    django_databases = providers.Singleton(
-        DjangoDatabases,
-        default=fct,
-    )
-
-
 def get_django_dbs() -> DjangoDatabases:
     """Get the Django database settings."""
-    db_container = DbContainer()
-    db_container.config.from_pydantic(BaseDatabaseSettings())
-    return db_container.django_databases()
+    base_settings = BaseDatabaseSettings()
+
+    if base_settings.engine == DBEngineEnum.POSTGRES:
+        db_settings = PostgresDatabaseSettings()
+    else:
+        db_settings = SqliteDatabaseSettings()
+
+    return DjangoDatabases(default=db_settings)
 
 
 def get_django_db_dict() -> dict:

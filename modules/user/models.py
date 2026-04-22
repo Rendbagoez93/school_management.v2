@@ -120,7 +120,6 @@ class AbstractUser(
             models.Index(fields=["is_active", "is_staff"]),
             models.Index(fields=["date_joined"]),
             models.Index(fields=["last_login"]),
-            models.Index(fields=["role"]),  # For API filtering by role
         ]
         constraints = [
             models.UniqueConstraint(
