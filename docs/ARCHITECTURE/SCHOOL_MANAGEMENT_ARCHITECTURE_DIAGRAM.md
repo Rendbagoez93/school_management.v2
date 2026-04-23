@@ -92,22 +92,32 @@ flowchart LR
 
 ## 4. Current Implemented Domain Modules
 
-- applications.academic_setup
-- applications.user_management
-- applications.school_management.academic_management
-- applications.school_management.grade_management
-- applications.school_management.staff_management
+| Module | Path | Status | Key Models |
+|---|---|---|---|
+| Academic Setup | `applications.academic_setup` | Implemented | `AcademicYearSetup`, `ImportTask` |
+| User Management | `applications.user_management` | Implemented | `SchoolUser` (proxy), `Parent`, `Student`, `SchoolStaff` |
+| Academic Management | `applications.school_management.academic_management` | Implemented | `AcademicYear`, `StudentEnrollment` |
+| Grade Management | `applications.school_management.grade_management` | Implemented | `Grade` |
+| Staff Management | `applications.school_management.staff_management` | Implemented | `Teacher`, `StaffMember` |
+
+> **Note on copilot-instructions.md**: The project structure section in `.github/copilot-instructions.md` marks `staff_management/` as "Staff (to be implemented)". This is outdated — `staff_management` is fully implemented with `Teacher` and `StaffMember` models. The table above reflects the actual current state of the codebase.
 
 ## 5. Planned Expansion Modules (Architecture Extension Points)
 
-- applications.school_config
-- applications.auth_api
-- applications.school_management.student_management
-- applications.school_management.parent_management
-- applications.school_management.attendance
-- applications.school_management.reports
-- applications.school_management.schedule
-- applications.school_management.announcements
+The following modules are defined in `.github/copilot-instructions.md` as future additions under `applications/`:
+
+| Module | Path | Status |
+|---|---|---|
+| School Config | `applications.school_config` | Planned |
+| Auth API | `applications.auth_api` | Planned |
+| Student Management | `applications.school_management.student_management` | Planned |
+| Parent Management | `applications.school_management.parent_management` | Planned |
+| Attendance | `applications.school_management.attendance` | Planned |
+| Reports | `applications.school_management.reports` | Planned |
+| Schedule | `applications.school_management.schedule` | Planned |
+| Announcements | `applications.school_management.announcements` | Planned |
+
+> Thin `Student` and `Parent` profile models already exist in `applications.user_management` (via `BaseUserType`). The full domain expansion modules listed above are separate and will introduce dedicated record models (roll numbers, attendance records, report cards, etc.) as specified in `docs/ERD/SCHOOL_MANAGEMENT_FUTURE_MODULES_ERD.md`.
 
 ## 6. Key Architectural Characteristics
 

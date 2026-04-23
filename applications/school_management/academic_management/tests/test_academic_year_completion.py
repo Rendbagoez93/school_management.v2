@@ -158,14 +158,9 @@ class TestStudentEnrollmentRestrictions:
     """Test student enrollment restrictions for COMPLETED years."""
     
     def test_model_technically_allows_enrollment_in_completed(self, completed_academic_year, student_user):
-        """
-        Test that model technically allows enrollment even when completed.
-        
-        Note: Business logic should prevent this, but model doesn't enforce it.
-        This allows for historical data corrections.
-        """
         # Create grade (from before completion)
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -175,6 +170,7 @@ class TestStudentEnrollmentRestrictions:
         )
         
         completed_academic_year.status = AcademicYear.Status.COMPLETED
+        completed_academic_year.setup_completed = True
         completed_academic_year.save()
         
         # Model allows enrollment (for data corrections)
@@ -191,6 +187,7 @@ class TestStudentEnrollmentRestrictions:
         """Test that existing enrollments can be queried after completion."""
         # Create enrollment before completing
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -211,6 +208,7 @@ class TestStudentEnrollmentRestrictions:
         
         # Complete the year
         completed_academic_year.status = AcademicYear.Status.COMPLETED
+        completed_academic_year.setup_completed = True
         completed_academic_year.save()
         
         # Enrollment still accessible
@@ -234,6 +232,7 @@ class TestCompletedYearOperations:
         """Test that completed year data can be queried for reports."""
         # Create some historical data
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         grades = [
@@ -246,6 +245,7 @@ class TestCompletedYearOperations:
         ]
         
         completed_academic_year.status = AcademicYear.Status.COMPLETED
+        completed_academic_year.setup_completed = True
         completed_academic_year.save()
         
         # Can query all data
@@ -431,6 +431,7 @@ class TestRealWorldCompletionScenarios:
         """Test querying completed year for report generation."""
         # Generate enrollment report
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         grade = Grade.objects.create(
@@ -454,6 +455,7 @@ class TestRealWorldCompletionScenarios:
             )
         
         completed_academic_year.status = AcademicYear.Status.COMPLETED
+        completed_academic_year.setup_completed = True
         completed_academic_year.save()
         
         # Report queries
@@ -477,6 +479,7 @@ class TestRealWorldCompletionScenarios:
         
         # Setup historical data in completed year
         completed_academic_year.status = AcademicYear.Status.SETUP
+        completed_academic_year.setup_completed = False
         completed_academic_year.save()
         
         old_grade = Grade.objects.create(
@@ -500,6 +503,7 @@ class TestRealWorldCompletionScenarios:
             )
         
         completed_academic_year.status = AcademicYear.Status.COMPLETED
+        completed_academic_year.setup_completed = True
         completed_academic_year.save()
         
         # Promotion logic would:

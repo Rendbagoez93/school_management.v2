@@ -295,7 +295,7 @@ class TestStaffListing:
         # Assert: Correct counts for each type
         assert all_teachers.count() == 3
         assert all_principals.count() == 1
-        assert all_staff.count() == 6  # 3 teachers + 1 principal + 1 vp + 2 staff
+        assert all_staff.count() == 7  # 3 teachers + 1 principal + 1 vp + 2 staff
         
         # Assert: Teachers are separate from principals
         assert principal not in all_teachers

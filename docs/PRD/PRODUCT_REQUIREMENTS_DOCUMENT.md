@@ -5,7 +5,9 @@
 Version: 1.0  
 Date: April 23, 2026  
 Status: Draft for implementation alignment  
-Source of truth: Consolidated from documentation in `.github/`
+Source of truth: `.github/copilot-instructions.md` (design and architecture), `docs/ERD/SCHOOL_MANAGEMENT_ERD.md` (current implemented schema), `docs/ERD/SCHOOL_MANAGEMENT_FUTURE_MODULES_ERD.md` (planned schema)
+
+> **Note on `.github/database-schema.md`**: That file was drafted against an earlier design and does not match the current implementation (it uses integer PKs, only 4 roles, and different field structures). It should not be used as a schema reference. The `docs/ERD/` files are authoritative.
 
 ---
 
@@ -95,15 +97,23 @@ Deliver an integrated, secure, and maintainable school operations platform where
 ## 5. Product Scope
 
 ### 5.1 In-Scope Domains (Core)
-- School configuration and branding.
-- User and role management (Admin, Principal, VP, Teacher, Staff, Parent, others in role enum).
-- Academic years and grades/classes.
-- Student management and parent-student linking.
-- Attendance (student, teacher, staff).
-- Report card generation and retrieval.
-- Timetable/schedule management and retrieval.
-- Announcement publishing and consumption.
-- Parent mobile app core flows.
+
+| Domain | Status | Notes |
+|---|---|---|
+| School configuration and branding | Planned | `school_config` module not yet implemented |
+| User and role management (Admin, Principal, VP, Teacher, Staff, Librarian, Accountant, Counselor, Nurse, Receptionist, Parent, Student) | Implemented | `user_management` + `staff_management` implemented |
+| Academic years | Implemented | `academic_management.AcademicYear` with status lifecycle |
+| Grades/classes | Implemented | `grade_management.Grade` with `grade_type`/`grade_subtype` structure |
+| Academic year setup workflow | Implemented | `academic_setup.AcademicYearSetup`, `ImportTask`, orchestrator |
+| Teacher and non-teaching staff profiles | Implemented | `staff_management.Teacher`, `StaffMember` |
+| Student management (full domain records) | Planned | Thin `Student` profile exists in `user_management`; full `student_management` module is future |
+| Parent-student linking | Partially implemented | `Parent.children` M2M exists; dedicated `parent_management` module with relationship metadata is future |
+| Attendance (student, teacher, staff) | Planned | `attendance` module not yet implemented |
+| Report card generation and retrieval | Planned | `reports` module not yet implemented |
+| Timetable/schedule management | Planned | `schedule` module not yet implemented |
+| Announcement publishing and consumption | Planned | `announcements` module not yet implemented |
+| Authentication API | Planned | `auth_api` module not yet implemented |
+| Parent mobile app core flows | Planned | Depends on auth_api and parent-facing modules |
 
 ### 5.2 Post-MVP / Future Scope
 - Online fee payment.
@@ -354,8 +364,71 @@ Deliver an integrated, secure, and maintainable school operations platform where
 
 ---
 
-## 18. Traceability
+## 18. Appendix — Current Implementation Status
+
+This appendix captures the current build state as of April 23, 2026. It serves as a quick-reference for engineering and QA to understand what is already in the codebase vs what remains to be built.
+
+### Implemented Modules
+
+| Module | App Path | Key Models / Classes |
+|---|---|---|
+| Core User Model | `modules.user` | `AbstractUser`, `User`, `DefaultUserManager`, `SecurityMixin`, `PreferencesMixin`, `TimestampMixin` |
+| Auth Rules | `modules.auth` | `auth_rules.py` |
+| Shared Infrastructure | `shared` | `TimeStampedModel`, `BaseSoftDeletableModel`, `ApiError`, `ApiErrorMiddleware`, `parse_query`, `parse_body`, `api_response` |
+| User Management | `applications.user_management` | `SchoolUser` (proxy), `SchoolUserManager`, `Parent`, `Student`, `SchoolStaff`, `BaseUserType` |
+| Academic Management | `applications.school_management.academic_management` | `AcademicYear` (with status enum lifecycle), `StudentEnrollment` |
+| Grade Management | `applications.school_management.grade_management` | `Grade` (grade/grade_type/grade_subtype structure) |
+| Staff Management | `applications.school_management.staff_management` | `Teacher`, `StaffMember` |
+| Academic Setup Workflow | `applications.academic_setup` | `AcademicYearSetup`, `ImportTask`, `AcademicYearOrchestrator` |
+
+### Role Enum (Current — `config.roles.RoleEnum`)
+
+All 12 roles defined as `StrEnum`:
+
+| Enum Key | Value | Category |
+|---|---|---|
+| `ADMIN` | `Admin` | Admin |
+| `PRINCIPAL` | `Principal` | Staff |
+| `VP` | `Vice Principal` | Staff |
+| `TEACHER` | `Teacher` | Staff |
+| `STAFF` | `Staff` | Staff |
+| `LIBRARIAN` | `Librarian` | Staff |
+| `ACT` | `Accountant` | Staff |
+| `CSLR` | `Counselor` | Staff |
+| `NURSE` | `Nurse` | Staff |
+| `RCP` | `Receptionist` | Staff |
+| `STUDENT` | `Student` | Regular |
+| `PARENT` | `Parent` | Regular |
+
+### User Model Key Fields (Current — `modules.user.models.AbstractUser`)
+
+- `id`: UUID (primary key, auto-generated)
+- `email`: EmailField, unique, case-insensitive constraint via `UniqueConstraint(Lower("email"))`
+- `role`: CharField(max_length=20), nullable, indexed, choices from `RoleEnum`
+- Security fields from `SecurityMixin`: `failed_login_attempts`, `account_locked_until`
+- Verification fields from `TimestampMixin`: `email_verified_at`, `password_changed_at`
+- Preference fields from `PreferencesMixin`: `preferred_language`, `timezone_preference`, `email_notifications`, `marketing_emails`
+- Soft-delete fields from `BaseSoftDeletableModel`: `is_deleted`, `deleted_at`
+
+### Not Yet Implemented
+
+The following are planned but have no code:
+- `applications.school_config` — School singleton config and branding
+- `applications.auth_api` — JWT-based authentication API endpoints
+- `applications.school_management.student_management` — Full student domain records
+- `applications.school_management.parent_management` — Parent-student linking with metadata
+- `applications.school_management.attendance` — Student/teacher/staff attendance
+- `applications.school_management.reports` — Report cards and grades
+- `applications.school_management.schedule` — Weekly timetable
+- `applications.school_management.announcements` — School announcements
+
+For target schema of the above, see `docs/ERD/SCHOOL_MANAGEMENT_FUTURE_MODULES_ERD.md`.
+
+---
+
+## 19. Traceability
 
 Detailed user stories and testable acceptance criteria are captured in:
 - docs/PRD/PRD_EPICS_AND_USER_STORIES.md
 - docs/PRD/PRD_ACCEPTANCE_CRITERIA_AND_TEST_CHECKLIST.md
+

@@ -1,5 +1,6 @@
 """API middleware for School Management System."""
 
+from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 
 from .exceptions import ApiError
@@ -23,7 +24,7 @@ class ApiErrorMiddleware:
         return self.get_response(request)
 
     def process_exception(self, request, exception):
-        """Process ApiError exceptions and return JSON error response."""
+        """Process ApiError and ValidationError exceptions and return JSON error responses."""
         if isinstance(exception, ApiError):
             return api_error(
                 code=exception.code,
@@ -31,6 +32,16 @@ class ApiErrorMiddleware:
                 status=exception.status,
                 data=exception.data,
             )
-        
+
+        if isinstance(exception, ValidationError):
+            if hasattr(exception, "message_dict"):
+                msg = "; ".join(
+                    f"{field}: {', '.join(errs)}"
+                    for field, errs in exception.message_dict.items()
+                )
+            else:
+                msg = "; ".join(exception.messages)
+            return api_error(code="validation_error", msg=msg, status=422)
+
         # Let other exceptions propagate
         return None

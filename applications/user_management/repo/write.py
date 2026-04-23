@@ -21,7 +21,7 @@ def create_staff_user(role: RoleEnum, user_data: dict) -> "SchoolUser":
         case RoleEnum.VP:
             user = SchoolUser.objects.create_vp(**user_data)
         case RoleEnum.STAFF:
-            user = SchoolUser.objects.create_staffuser(**user_data)
+            user = SchoolUser.objects.create_staff(**user_data)
         case _:
             raise ValueError(f"Unsupported role: {role}")
     return user

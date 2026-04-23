@@ -3,22 +3,26 @@
 Date: April 23, 2026  
 Scope: Target-state ERD for modules that are planned or partially unimplemented in current code.
 
-This ERD is intended to complement the current implemented ERD and focuses on planned entities for:
+This ERD is intended to complement the current implemented ERD (`SCHOOL_MANAGEMENT_ERD.md`) and focuses on planned entities for:
 - school configuration
-- student domain expansion
-- parent-student explicit linking
+- student domain expansion (full student record with roll number, admission date, etc.)
+- parent-student explicit linking (with relationship metadata)
 - subjects and teacher-subject assignment
 - schedule/timetable
 - attendance (student, teacher, staff)
 - report cards
 - announcements
 
+> **Note on current thin profiles**: The existing `applications.user_management` app already has thin `Student` and `Parent` profile models (a OneToOne to `User` with only `address` and `attributes` fields). The future `student_management` and `parent_management` modules described here represent the full domain expansion with dedicated records. When those modules are implemented, the thin profiles may be extended or replaced.
+
 ## References Used
 
-- .github/copilot-instructions.md
-- .github/database-schema.md
-- .github/api-reference.md
-- .github/mobile-dev.md
+- `.github/copilot-instructions.md` — authoritative backend design and architecture reference
+- `.github/api-reference.md` — target API contract for mobile/parent endpoints
+- `.github/mobile-dev.md` — mobile integration plan
+- `docs/ERD/SCHOOL_MANAGEMENT_ERD.md` — current implemented schema (authoritative source)
+
+> Note: `.github/database-schema.md` references an earlier design iteration. The field definitions and table names in that file do not match the current implementation. This future ERD is aligned with `copilot-instructions.md` and the current codebase as the authoritative sources.
 
 ## Target-State ERD (Mermaid)
 
