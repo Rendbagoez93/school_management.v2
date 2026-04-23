@@ -31,7 +31,6 @@ class StaffMember(BaseSoftDeletableModel):
 	date_of_joining = models.DateField(null=True, blank=True)
 	is_active = models.BooleanField(default=True)
 
-	objects = models.Manager()
 	active = ActiveStaffManager()
 
 	class Meta:
