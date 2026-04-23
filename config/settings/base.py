@@ -63,6 +63,7 @@ INTERNAL_APPS = [
     "applications.school_management.academic_management",
     "applications.school_management.grade_management",
     "applications.school_management.staff_management",
+    "applications.school_management.teacher_management",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + INTERNAL_APPS

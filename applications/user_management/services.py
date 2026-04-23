@@ -115,105 +115,92 @@ class ParentService:
 
 class TeacherProfileService:
     """Service for Teacher profile operations.
-    
-    NOTE: This service is prepared for future Teacher model implementation.
-    The teacher_management app and Teacher model do not currently exist.
-    
-    When implementing the Teacher model:
-    1. Create applications.school_management.teacher_management app
-    2. Define Teacher model with appropriate fields
-    3. Uncomment the import statements in the methods below
-    4. Update this service to handle Teacher profile creation/management
-    
-    Handles creation and management of Teacher profiles to avoid duplication
-    and maintain separation of concerns.
+
+    Bridges user account creation (user_management) with Teacher professional
+    profile creation (teacher_management). The underlying User + SchoolStaff
+    profile must already exist before calling these methods.
     """
-    
+
     @staticmethod
-    def create_teacher_profile(user):
-        """Create a Teacher profile for a user with validation.
-        
-        NOTE: Teacher model not yet implemented. This is a placeholder.
-        
+    def create_teacher_profile(
+        user,
+        employee_id: str,
+        department: str = "",
+        specialization: str = "",
+        date_of_joining=None,
+    ):
+        """Create a Teacher profile for an existing user.
+
         Args:
-            user: SchoolUser instance with TEACHER role
-        
+            user: SchoolUser instance that already has the TEACHER role.
+            employee_id: Unique employee identifier (required).
+            department: Optional department name.
+            specialization: Optional teaching specialization.
+            date_of_joining: Optional date the teacher joined.
+
         Returns:
-            Teacher instance (when teacher_management app is created)
-        
+            Teacher instance.
+
         Raises:
-            ValueError: If user doesn't have TEACHER role
-            NotImplementedError: Teacher model doesn't exist yet
+            ValueError: If user doesn't have TEACHER role or already has a profile.
         """
-        # Validate user has teacher role
+        from applications.school_management.teacher_management.models import Teacher
+
         if not user.groups.filter(name=RoleEnum.TEACHER.value).exists():
             raise ValueError(f"User {user.get_full_name()} must have TEACHER role")
-        
-        raise NotImplementedError(
-            "Teacher model not yet implemented. "
-            "Create applications.school_management.teacher_management app first."
+
+        if Teacher.objects.filter(user=user, is_deleted=False).exists():
+            raise ValueError(f"User {user.get_full_name()} already has a Teacher profile")
+
+        teacher = Teacher(
+            user=user,
+            employee_id=employee_id,
+            department=department,
+            specialization=specialization,
+            date_of_joining=date_of_joining,
+            is_active=True,
         )
-        
-        # TODO: Uncomment when Teacher model is implemented
-        # from applications.school_management.teacher_management.models import Teacher
-        # 
-        # # Check if Teacher profile already exists
-        # existing_teacher = Teacher.objects.filter(email=user.email).first()
-        # if existing_teacher:
-        #     # Return existing instead of creating duplicate
-        #     return existing_teacher
-        # 
-        # # Create new Teacher profile
-        # teacher = Teacher.objects.create(
-        #     first_name=user.first_name,
-        #     last_name=user.last_name,
-        #     email=user.email,
-        #     phone_number=getattr(user, 'phone_number', ''),
-        #     is_active=user.is_active
-        # )
-        # 
-        # return teacher
-    
+        teacher.full_clean()
+        teacher.save()
+        return teacher
+
     @staticmethod
-    def get_or_create_teacher_profile(user):
-        """Get existing Teacher profile or create new one.
-        
-        NOTE: Teacher model not yet implemented. This is a placeholder.
-        
+    def get_or_create_teacher_profile(
+        user,
+        employee_id: str,
+        department: str = "",
+        specialization: str = "",
+        date_of_joining=None,
+    ) -> tuple:
+        """Get existing Teacher profile or create a new one.
+
         Args:
-            user: SchoolUser instance with TEACHER role
-        
+            user: SchoolUser instance that already has the TEACHER role.
+            employee_id: Unique employee identifier used only when creating.
+            department: Optional department name used only when creating.
+            specialization: Optional teaching specialization used only when creating.
+            date_of_joining: Optional date used only when creating.
+
         Returns:
-            Tuple of (Teacher instance, created: bool)
-        
+            Tuple of (Teacher instance, created: bool).
+
         Raises:
-            ValueError: If user doesn't have TEACHER role
-            NotImplementedError: Teacher model doesn't exist yet
+            ValueError: If user doesn't have TEACHER role.
         """
-        # Validate user has teacher role
+        from applications.school_management.teacher_management.models import Teacher
+
         if not user.groups.filter(name=RoleEnum.TEACHER.value).exists():
             raise ValueError(f"User {user.get_full_name()} must have TEACHER role")
-        
-        raise NotImplementedError(
-            "Teacher model not yet implemented. "
-            "Create applications.school_management.teacher_management app first."
+
+        existing = Teacher.objects.filter(user=user, is_deleted=False).first()
+        if existing:
+            return existing, False
+
+        teacher = TeacherProfileService.create_teacher_profile(
+            user=user,
+            employee_id=employee_id,
+            department=department,
+            specialization=specialization,
+            date_of_joining=date_of_joining,
         )
-        
-        # TODO: Uncomment when Teacher model is implemented
-        # from applications.school_management.teacher_management.models import Teacher
-        # 
-        # # Try to get existing teacher profile
-        # existing_teacher = Teacher.objects.filter(email=user.email).first()
-        # if existing_teacher:
-        #     return existing_teacher, False
-        # 
-        # # Create new Teacher profile
-        # teacher = Teacher.objects.create(
-        #     first_name=user.first_name,
-        #     last_name=user.last_name,
-        #     email=user.email,
-        #     phone_number=getattr(user, 'phone_number', ''),
-        #     is_active=user.is_active
-        # )
-        # 
-        # return teacher, True
+        return teacher, True

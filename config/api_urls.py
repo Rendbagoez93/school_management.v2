@@ -16,4 +16,5 @@ urlpatterns = [
 
     # Implemented app APIs
     path("staff-management/", include("applications.school_management.staff_management.urls")),
+    path("teachers/", include("applications.school_management.teacher_management.urls")),
 ]
