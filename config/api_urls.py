@@ -14,7 +14,16 @@ urlpatterns = [
     path("auth/token/", TokenObtainPairView.as_view(), name="token-obtain-pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token-refresh"),
 
-    # Implemented app APIs
-    path("staff-management/", include("applications.school_management.staff_management.urls")),
+    # Academic management
+    path("academic-years/", include("applications.school_management.academic_management.urls")),
+
+    # Grade management
+    path("grades/", include("applications.school_management.grade_management.urls")),
+
+    # Staff management
+    path("staff/", include("applications.school_management.staff_management.urls")),
+
+    # Teacher management
     path("teachers/", include("applications.school_management.teacher_management.urls")),
 ]
+

@@ -92,28 +92,3 @@ class StaffMemberActivationAPIView(APIView):
 		data = parse_body(request, StaffMemberDeactivateSchema)
 		updated = StaffMemberService.set_active(member, is_active=data.is_active)
 		return api_response(StaffMemberResponseSchema.from_model(updated).model_dump(mode="json"))
-
-
-class TeacherDetailAPIView(APIView):
-	permission_classes = [IsAuthenticated]
-
-	def get(self, request, teacher_id: int):
-		teacher = Teacher.objects.select_related("user").filter(pk=teacher_id, is_active=True).first()
-		if not teacher:
-			raise ApiError("not_found", "Teacher not found.", status=404)
-
-		return api_response(
-			{
-				"id": teacher.id,
-				"employeeId": teacher.employee_id,
-				"department": teacher.department,
-				"specialization": teacher.specialization,
-				"dateOfJoining": teacher.date_of_joining,
-				"user": {
-					"id": str(teacher.user_id),
-					"email": teacher.user.email,
-					"firstName": teacher.user.first_name,
-					"lastName": teacher.user.last_name,
-				},
-			}
-		)
