@@ -77,6 +77,7 @@ erDiagram
         datetime deleted_at
     }
 
+
     STUDENT_ENROLLMENT {
         bigint id PK
         uuid student_id FK
@@ -209,23 +210,53 @@ erDiagram
     USER ||--o{ PARENT_CHILDREN : child_user
 ```
 
+## Module-to-Entity Mapping
+
+| Entity | App Module | Model Class |
+|---|---|---|
+| USER | `modules.user` | `User` (abstract base: `AbstractUser`) |
+| ACADEMIC_YEAR | `applications.school_management.academic_management` | `AcademicYear` |
+| STUDENT_ENROLLMENT | `applications.school_management.academic_management` | `StudentEnrollment` |
+| GRADE | `applications.school_management.grade_management` | `Grade` |
+| ACADEMIC_YEAR_SETUP | `applications.academic_setup` | `AcademicYearSetup` |
+| IMPORT_TASK | `applications.academic_setup` | `ImportTask` |
+| PARENT | `applications.user_management` | `Parent` |
+| STUDENT_PROFILE | `applications.user_management` | `Student` |
+| SCHOOL_STAFF | `applications.user_management` | `SchoolStaff` |
+| TEACHER | `applications.school_management.staff_management` | `Teacher` |
+| STAFF_MEMBER | `applications.school_management.staff_management` | `StaffMember` |
+| PARENT_CHILDREN | auto-generated M2M | `Parent.children` through table |
+
 ## Relationship Notes
 
 - `SchoolUser` is a proxy model over `User`; it does not create a separate DB table.
-- `BaseUserType` is abstract and contributes fields to `Parent`, `Student` (shown as `STUDENT_PROFILE`), and `SchoolStaff`.
-- Parent-to-children relation is represented by an implicit Django M2M table (`PARENT_CHILDREN` above).
+- `BaseUserType` is abstract and contributes fields to `Parent`, `Student` (shown as `STUDENT_PROFILE`), and `SchoolStaff`. All three are in `applications.user_management`.
+- **Dual-profile pattern for staff/teachers**: A teacher `User` gets a `SchoolStaff` profile (created at user creation via `SchoolUserManager.create_teacher`) and optionally a `Teacher` profile (created separately via the service layer in `staff_management`). The `Teacher` profile holds teaching-specific data (employee_id, department, specialization). Not all staff users will have a `Teacher` profile.
+- **Reverse accessor names** (Django `related_name` values): `user.teacher_profile` → Teacher, `user.staff_member_profile` → StaffMember, `user.schoolstaff` → SchoolStaff, `user.student` → Student, `user.parent` → Parent.
+- Parent-to-children relation is represented by an implicit Django M2M table (`PARENT_CHILDREN` above). The `children` field is defined on `Parent` and links to `SchoolUser`.
 - `Grade.students` is an M2M to `User` through `StudentEnrollment`.
 - Soft-delete fields (`is_deleted`, `deleted_at`) are inherited through `BaseSoftDeletableModel` on most domain entities.
+- `Grade` has both inherited timestamp fields (`date_joined`, `date_modified` from `TimeStampedModel`) and explicit `created_at` / `updated_at` fields defined directly on the model. This is intentional in the current implementation.
 
 ## Important Constraints Captured from Code
 
+- `User.email` is unique (case-insensitive: enforced via `UniqueConstraint(Lower("email"))`).
+- `User.role` is indexed but nullable (blank/null allowed); roles are also enforced via Django Groups.
 - `AcademicYear.name` is unique.
+- `AcademicYear.status` uses a `TextChoices` enum: `SETUP`, `ENROLLMENT`, `ACTIVE`, `COMPLETED`.
+- `AcademicYear.deployment_type` uses `TextChoices`: `FRESH_START`, `MID_YEAR`.
 - `AcademicYearSetup.academic_year` is one-to-one.
 - `Teacher.employee_id` and `StaffMember.employee_id` are unique.
-- `StudentEnrollment` unique active constraint: one student per academic year where not soft-deleted.
+- `StudentEnrollment` unique active constraint: one student per academic year where `is_deleted=False`.
 - `Grade` unique tuple: (`name`, `grade`, `academic_year`, `grade_type`, `grade_subtype`).
+
+## Schema Reference Alignment Note
+
+> The `.github/database-schema.md` in this repository was drafted against an earlier design iteration and does not reflect the current implementation. Specifically: it uses integer PKs (actual User PK is UUID), references only 4 roles (actual system has 12 via `RoleEnum`), and models `Grade` and `Student` with different field sets. **This ERD document (generated from the actual model source files) is the authoritative schema reference.**
+>
+> For the planned future schema (modules not yet implemented), see `SCHOOL_MANAGEMENT_FUTURE_MODULES_ERD.md`.
 
 ## Exclusions
 
 - Django auth internals (`auth_group`, permissions M2M) are not expanded in this ERD.
-- Abstract base tables are not shown as physical entities.
+- Abstract base tables (`AbstractUser`, `BaseUserType`, `TimeStampedModel`, `BaseSoftDeletableModel`) are not shown as physical entities.

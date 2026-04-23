@@ -5,6 +5,8 @@ Date: April 23, 2026
 
 This checklist translates PRD requirements into verifiable acceptance criteria for QA and engineering.
 
+> **Current baseline**: User management, academic year, grade, staff, and academic setup modules are already implemented and testable. Acceptance criteria below covering authentication, attendance, reports, schedule, and announcements apply once those planned modules are built. See `docs/PRD/PRODUCT_REQUIREMENTS_DOCUMENT.md` Appendix 18 for full implementation status.
+
 ---
 
 ## 1. Authentication and Authorization

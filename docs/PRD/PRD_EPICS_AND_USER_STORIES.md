@@ -5,6 +5,8 @@ Date: April 23, 2026
 
 This document decomposes the PRD into delivery epics and implementation-ready user stories.
 
+> **Implementation context**: As of April 2026, the following modules are already implemented: `user_management`, `academic_management`, `grade_management`, `staff_management`, and `academic_setup`. The epics and stories below cover the full planned product — including both completed foundations and remaining modules to build. See `docs/PRD/PRODUCT_REQUIREMENTS_DOCUMENT.md` Appendix 18 for a full implementation status table.
+
 ---
 
 ## Epic 1: Authentication and Account Security
@@ -218,6 +220,8 @@ As a project manager, I want docs updated with changes so teams remain aligned.
 - Dependencies: documentation maintenance workflow
 - Acceptance summary:
   - API/schema/feature docs updated when implementation changes.
+  - `docs/ERD/SCHOOL_MANAGEMENT_ERD.md` is the authoritative schema reference and kept in sync with models.
+  - `.github/copilot-instructions.md` project structure section updated when new modules are added.
 
 ---
 
