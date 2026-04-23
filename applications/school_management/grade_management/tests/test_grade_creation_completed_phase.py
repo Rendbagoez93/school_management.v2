@@ -211,7 +211,7 @@ class TestGradeCreationDuringCompleted:
           - Modify structure ❌
         """
         # Can read existing grades
-        grades = Grade.objects.filter(academic_year=completed_academic_year)
+        grades = Grade.objects.filter(academic_year=grade_in_completed.academic_year)
         assert grade_in_completed in grades
         
         # Cannot add new grades

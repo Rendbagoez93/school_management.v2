@@ -25,7 +25,7 @@ class TestUserDemographics:
     def test_age_calculation(self, user_factory):
         """Test age calculation from date of birth."""
         # User born exactly 25 years ago today
-        birth_date = date.today() - timedelta(days=25 * 365 + 6)  # Include leap years
+        birth_date = date.today() - timedelta(days=25 * 365 + 7)  # Include leap years (7 between 2000-2025)
         user = user_factory(date_of_birth=birth_date)
 
         age = user.get_age()

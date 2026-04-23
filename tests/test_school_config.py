@@ -54,7 +54,7 @@ class TestSchoolConfigModel:
         assert config.name == "SMA Swasta"
         assert config.address == "Jln R.A kartini, Malang, Indonesia"
         assert config.phone == "+62 341 123456"
-        assert config.email == "info@smaislammalang.sch.id"
+        assert config.email == "info@smaswasta.sch.id"
 
 
 class TestSchoolAttribute:

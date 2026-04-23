@@ -278,12 +278,12 @@ class TestProfileIntegrityEdgeCases:
         profile_id = student_user.student.id
         user_id = student_user.id
         
-        # Act: Delete user
-        student_user.delete()
+        # Act: Hard-delete the user to trigger DB CASCADE (soft-delete would not cascade)
+        User.all_objects.filter(pk=user_id).delete()
         
         # Assert: Profile is also deleted (CASCADE behavior)
         assert not Student.objects.filter(id=profile_id).exists()
-        assert not User.objects.filter(id=user_id).exists()
+        assert not User.all_objects.filter(id=user_id).exists()
     
     def test_profile_deletion_keeps_user(self, student_user):
         """Test that deleting profile keeps the user intact."""
